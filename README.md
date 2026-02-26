@@ -1,5 +1,4 @@
-ESP32-RSSI-Localization
-A low-cost Indoor Positioning System (IPS) for real-time tracking
+ESP32-RSSI-Localization - A low-cost Indoor Positioning System (IPS) for real-time tracking
 <img width="1895" height="894" alt="image" src="https://github.com/user-attachments/assets/eb2433a0-6345-4ca0-9c54-1dcc4a246757" />
 
 This project implements a complete Indoor Positioning System designed to track devices within a local environment. By analyzing the Received Signal Strength Indicator (RSSI) from multiple ESP32 beacons, the system estimates the user's coordinates using trilateration and visualizes the data on a live web dashboard.

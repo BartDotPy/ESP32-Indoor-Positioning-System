@@ -5,6 +5,7 @@ import socket #polaczenie z ESP32
 import threading
 from matplotlib.patches import Rectangle
 
+
 st.set_page_config("ESP32 - Localization Center")
 
 st.sidebar.header("Pozycje Beaconów [m]")
@@ -20,6 +21,7 @@ b3_y = st.sidebar.number_input("BEACON_3 (Y)", value=0.0, step = 0.1)
 st.sidebar.subheader("Wymiary pokoju")
 room_x = st.sidebar.number_input("Szerokość pokoju [m]", value = 0.0, step = 0.1)
 room_y = st.sidebar.number_input("Długość pokoju [m]", value = 0.0, step = 0.1)
+
 
 beacons = {
     "BEACON_1": (b1_x,b1_y),
@@ -61,8 +63,33 @@ with tab_login:
         password = st.text_input("Hasło", type="password")
         submit_wifi = st.form_submit_button("Połącz z siecią")
 
+#interpretacja/odebranie rssi
+def get_latest_rssi():
+    if not st.session_state.data_log:
+        return{}
+    #otrzymujemy wiadomość postaci "NAZWA:RSSI; ..."
+    last_msg = st.session_state.data_log[-1]
+    try:
+        data = {} #slownik przechowujacy klucz (nazwe) i wartosc (RSSI)
+        for item in last_msg.strip(';').split(';'):
+            if ':' in item:
+                name, rssi = item.split(':')
+                data[name] = int(rssi)
+
+        return data
+    except:
+        return {}
+
 
 with tab_map:
+    #wyswietlanie wartosci zmierzonych RSSI
+    current_data = get_latest_rssi()
+    cols = st.columns(3)
+    for i,name in enumerate(["BEACON_1", "BEACON_2", "BEACON_3"]):
+        val = current_data.get(name, "N/A")
+        cols[i].metric(label=name, value=f"{val} dBm")
+
+
     st.header("Wizualizacja mapy pomiarów")
 
     fig,ax = plt.subplots()
@@ -77,3 +104,7 @@ with tab_map:
     ax.legend()
 
     st.pyplot(fig)
+
+    st.header("Parametry sygnału")
+    A = st.slider("Moc z 1 metra (A) [dBm]", -80, -30, -55)
+    n = st.slider("Współczynnik tłumienia (n)", 1.0, 5.0, 2.0)
